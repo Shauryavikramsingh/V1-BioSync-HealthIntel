@@ -1,7 +1,7 @@
 ![BioSync Icon](Icon.png)
 
 # Design Philosophy & Architecture: BioSync HealthIntel        | NOTE :- APK version coming soon!   |    date project started - 14/6/2026 [USAII hackatton 2026]
-
+Trial web page-https://trialbiosync.netlify.app/ 
 
 <h3 align="center">
   <samp>─── 📱 USER INTERFACE IN MOBILE ───</samp>
