@@ -1,6 +1,7 @@
 ![BioSync Icon](Icon.png)
 
-# Design Philosophy & Architecture: BioSync HealthIntel        | NOtE :- APK version coming soon!
+# Design Philosophy & Architecture: BioSync HealthIntel        | NOtE :- APK version coming soon!   |    date project started - 14/6/2026 [USAII hackatton 2026]
+
 
 <h3 align="center">
   <samp>─── 📱 USER INTERFACE IN MOBILE ───</samp>
