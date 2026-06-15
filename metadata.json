@@ -1,0 +1,6 @@
+{
+  "name": "Daily Notepad",
+  "description": "A simple, lightweight, offline-first Daily Notepad to capture, edit, and keep track of your daily journals, notes, and observations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
