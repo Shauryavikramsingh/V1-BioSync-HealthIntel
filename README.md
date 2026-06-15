@@ -26,4 +26,4 @@ The core of the application is a data-driven interaction model:
 *   **Offline-First Resilience:** The UI is designed to remain fully functional without network connectivity, with graceful UI transitions that indicate the "sync status" of the AI Triage engine.
 
 ---
-*Architectural design documentation for BioSync HealthIntel, a joint development by Shaurya Vikram Singh and Veer Vikram Singh.*
+*Architectural documentation for BioSync HealthIntel, a joint development by Shaurya Vikram Singh and Veer Vikram Singh.*
