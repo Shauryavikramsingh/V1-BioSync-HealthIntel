@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://ggpht.com" alt="Channel Banner" width="100%">
-</p>
+![BioSync Icon](Icon.png)
 
 
 # Design Philosophy & Architecture: BioSync HealthIntel
