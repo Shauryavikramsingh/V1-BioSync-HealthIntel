@@ -1,4 +1,4 @@
-<img src="[images/screenshot.png](https://yt3.ggpht.com/G34t1dsB4SJip0iu3WOrO4ZYqbQhqC2p0gPmT_HoHXDOcDMDxg0beE9kmDY3eG5lT0MOTi0zSdxq=s629-c-fcrop64=1,445c0000bba3ffff-rw-nd-v1)" alt="Description" width="400">
+<img src="[httpsyt3.ggpht.comG34t1dsB4SJip0iu3WOrO4ZYqbQhqC2p0gPmT_HoHXDOcDMDxg0beE9kmDY3eG5lT0MOTi0zSdxq=s629-c-fcrop64=1,445c0000bba3ffff-rw-nd-v1]()" alt="Description" width="400">
 
 # Design Philosophy & Architecture: BioSync HealthIntel
 
