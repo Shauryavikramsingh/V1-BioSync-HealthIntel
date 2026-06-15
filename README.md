@@ -1,7 +1,15 @@
 ![BioSync Icon](Icon.png)
 
-
 # Design Philosophy & Architecture: BioSync HealthIntel
+
+<h3 align="center">
+  <samp>─── 📱 USER INTERFACE IN MOBILE ───</samp>
+</h3>
+
+<p align="center">
+  <img src="UI(Mobile).PNG" alt="User Interface in Mobile" width="350">
+</p>
+
 
 ## 1. Visual Language & UX Strategy
 BioSync HealthIntel adopts a "Clinical Neural" aesthetic—a design language intended to instill confidence, clarity, and calm. By leveraging Material Design 3 (M3) components, the interface minimizes cognitive load, allowing users to focus on critical health data.
