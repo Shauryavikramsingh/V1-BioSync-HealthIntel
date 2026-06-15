@@ -1,6 +1,6 @@
 ![BioSync Icon](Icon.png)
 
-# Design Philosophy & Architecture: BioSync HealthIntel
+# Design Philosophy & Architecture: BioSync HealthIntel        | NOtE :- APK version coming soon!
 
 <h3 align="center">
   <samp>─── 📱 USER INTERFACE IN MOBILE ───</samp>
