@@ -1,21 +1,28 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="[[https://i.pinimg.com/736x/48/33/67/48336747dc8a3dd8c54cc507accc4b42.jpg]([)" />
-</div>
+# BioSync HealthIntel (Daily Notepad)
 
-# Run and deploy your AI Studio app
+**BioSync HealthIntel** is an intelligent, offline-first Android application designed to bridge the gap between decentralized patient journaling and clinically aware biometrics tracking. Developed by Shaurya Vikram Singh and Veer Vikram Singh, this tool allows users to maintain a robust, secure record of symptoms and telemetry to facilitate more accurate medical diagnoses and tackle multicomorbidity.
 
-This contains everything you need to run your app locally.
+## Core Mission
+Inspired by the challenges of monitoring elderly family members, this app serves as a medical investigation tool to track medication conflicts, symptom progression, and general wellness. It empowers users to provide physicians with high-fidelity telemetry during consultations, bridging the gap in elderly care through proactive health management.
 
-View your app in AI Studio: https://ai.studio/apps/173c884f-0dc1-432b-aa12-c81f65bd6a62
+## Key Features
+*   **Intelligent Health Journaling:** Captures verbose symptom narratives and maps metrics such as blood glucose, blood pressure, and SpO2.
+*   **AI Clinical Triage (RAG-Based):** Features an on-device, context-aware chatbot that utilizes Retrieval-Augmented Generation (RAG) on recent logs to provide a three-tiered diagnostic severity assessment (Normal, Intermediate, Serious).
+*   **Secure Offline-First Persistence:** Built on Room SQLite to ensure patient confidentiality and data availability without requiring constant connectivity.
+*   **Clinical Portability:** Includes a Compressed Export Utility to pack notes, voice memos (.3gp), and photos (.jpg) into secure, shareable .zip files, ensuring medical history is easily accessible by clinicians.
+*   **Modern Android Architecture:** Engineered with Kotlin, Jetpack Compose (M3), and an MVVM design pattern for a responsive, high-performance user experience.
 
-## Run Locally
+## Technical Stack
+*   **Core Language:** Kotlin (v1.9+)
+*   **UI Framework:** Jetpack Compose with Material Design 3
+*   **Database:** Room SQLite (with KSP)
+*   **AI Integration:** Google Gemini API with RAG framework
+*   **Networking:** Retrofit 2 & OkHttp 3
+*   **Testing:** Robolectric & Roborazzi
+*   **Build System:** Gradle (Secrets Gradle Plugin)
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+## UI Preview
+![Application Interface](Daily notepad current thu,mbbnail.PNG)
 
-
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+---
+*Developed by Shaurya Vikram Singh and Veer Vikram Singh.*
