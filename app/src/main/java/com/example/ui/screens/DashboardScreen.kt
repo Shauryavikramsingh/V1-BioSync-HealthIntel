@@ -47,6 +47,243 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
+object Translator {
+    private val translations = mapOf(
+        "en" to mapOf(
+            "app_title" to "DAILY NOTEPAD",
+            "app_subtitle" to "RICH MEMORIES, PHOTO SNAPSHOTS & AUDIO MEMOS",
+            "write_new_note" to "WRITE NEW DAILY NOTE",
+            "edit_note" to "EDIT NOTEPAD ENTRY",
+            "calendar_now" to "Calendar: Now",
+            "input_placeholder" to "Type daily thoughts, checklists, observations, or general standard updates...",
+            "attached_media" to "ATTACHED MEDIA ITEMS:",
+            "add_media" to "ADD MEDIA",
+            "clear" to "CLEAR",
+            "cancel" to "CANCEL",
+            "save_journal" to "SAVE JOURNAL NOTE",
+            "update_note" to "UPDATE NOTE",
+            "search_placeholder" to "Filter notepad items by search phrase...",
+            "saved_history" to "SAVED NOTEPAD HISTORY",
+            "filtered_results" to "FILTERED RESULTS",
+            "entries_label" to "ENTRIES",
+            "empty_state_title" to "No saved journal entries yet.",
+            "empty_state_search_title" to "No matching notes found.",
+            "empty_state_subtitle" to "Click ADD MEDIA or write custom logs to populate your secure local notebook history.",
+            "empty_state_search_subtitle" to "Try adjusting search spelling or keyword.",
+            "ai_triage_chat" to "AI TRIAGE CHAT",
+            "settings" to "SETTINGS",
+            "adjust_ui_theme" to "Adjust UI Theme",
+            "font_size_scale" to "Font Size Scale",
+            "language" to "Language",
+            "ui_contrast" to "UI Contrast Mode",
+            "system_default" to "System Default",
+            "light_theme" to "Light",
+            "dark_theme" to "Dark",
+            "font_small" to "Small (85%)",
+            "font_medium" to "Medium (Default)",
+            "font_large" to "Large (115%)",
+            "font_extra_large" to "Extra Large (130%)",
+            "normal_contrast" to "Normal Contrast",
+            "high_contrast" to "High Contrast",
+            "close" to "Close"
+        ),
+        "es" to mapOf(
+            "app_title" to "BLOC DE NOTAS DIARIO",
+            "app_subtitle" to "MEMORIAS RICAS, FOTOS Y MEMOS DE AUDIO",
+            "write_new_note" to "ESCRIBIR NUEVA NOTA DIARIA",
+            "edit_note" to "EDITAR ENTRADA DE NOTICIA",
+            "calendar_now" to "Calendario: Ahora",
+            "input_placeholder" to "Escriba pensamientos diarios, listas, observaciones o actualizaciones generales...",
+            "attached_media" to "ELEMENTOS MULTIMEDIA ADJUNTOS:",
+            "add_media" to "AÑADIR MULTIMEDIA",
+            "clear" to "LIMPIAR",
+            "cancel" to "CANCELAR",
+            "save_journal" to "GUARDAR NOTA DE DIARIO",
+            "update_note" to "ACTUALIZAR NOTA",
+            "search_placeholder" to "Filtrar elementos del bloc de notas...",
+            "saved_history" to "HISTORIAL DE NOTAS GUARDADAS",
+            "filtered_results" to "RESULTADOS FILTRADOS",
+            "entries_label" to "ENTRADAS",
+            "empty_state_title" to "No hay entradas guardadas aún.",
+            "empty_state_search_title" to "No se encontraron notas coincidentes.",
+            "empty_state_subtitle" to "Haga clic en AÑADIR MULTIMEDIA o escriba notas personalizadas para llenar su historial.",
+            "empty_state_search_subtitle" to "Intente ajustar la búsqueda o palabra clave.",
+            "ai_triage_chat" to "CHATEAR CON LA IA",
+            "settings" to "CONFIGURACIÓN",
+            "adjust_ui_theme" to "Ajustar tema de la interfaz",
+            "font_size_scale" to "Escala de fuente",
+            "language" to "Idioma",
+            "ui_contrast" to "Contraste de interfaz",
+            "system_default" to "Predeterminado de sistema",
+            "light_theme" to "Claro",
+            "dark_theme" to "Oscuro",
+            "font_small" to "Pequeño (85%)",
+            "font_medium" to "Medio (Predeterminado)",
+            "font_large" to "Grande (115%)",
+            "font_extra_large" to "Muy Grande (130%)",
+            "normal_contrast" to "Contraste normal",
+            "high_contrast" to "Alto contraste",
+            "close" to "Cerrar"
+        ),
+        "fr" to mapOf(
+            "app_title" to "BLOC-NOTES QUOTIDIEN",
+            "app_subtitle" to "SOUVENIRS RICHES, PHOTOS & MÉMOS AUDIO",
+            "write_new_note" to "ÉCRIRE UNE NOUVELLE NOTE",
+            "edit_note" to "MODIFIER LA NOTE",
+            "calendar_now" to "Calendrier: Maintenant",
+            "input_placeholder" to "Saisissez vos pensées, listes, observations ou remarques générales...",
+            "attached_media" to "MÉDIAS ATTACHÉS:",
+            "add_media" to "AJOUTER MÉDIA",
+            "clear" to "EFFACER",
+            "cancel" to "ANNULER",
+            "save_journal" to "ENREGISTRER LA NOTE",
+            "update_note" to "METTRE À JOUR",
+            "search_placeholder" to "Filtrer les notes par mot-clé...",
+            "saved_history" to "HISTORIQUE DES NOTES",
+            "filtered_results" to "RÉSULTATS FILTRÉS",
+            "entries_label" to "ENTRÉES",
+            "empty_state_title" to "Aucun souvenir enregistré pour l'instant.",
+            "empty_state_search_title" to "Aucune note correspondante.",
+            "empty_state_subtitle" to "Cliquez sur AJOUTER MÉDIA ou écrivez pour remplir votre journal local.",
+            "empty_state_search_subtitle" to "Essayez d'ajuster l'orthographe du mot-clé.",
+            "ai_triage_chat" to "CONVERSATION IA",
+            "settings" to "PARAMÈTRES",
+            "adjust_ui_theme" to "Thème de l'interface",
+            "font_size_scale" to "Échelle de la police",
+            "language" to "Langue",
+            "ui_contrast" to "Mode de contraste",
+            "system_default" to "Défaut système",
+            "light_theme" to "Clair",
+            "dark_theme" to "Sombre",
+            "font_small" to "Petit (85%)",
+            "font_medium" to "Moyen (Défaut)",
+            "font_large" to "Grand (115%)",
+            "font_extra_large" to "Très Grand (130%)",
+            "normal_contrast" to "Contraste Normal",
+            "high_contrast" to "Contraste Élevé",
+            "close" to "Fermer"
+        ),
+        "hi" to mapOf(
+            "app_title" to "दैनिक नोटबुक",
+            "app_subtitle" to "समृद्ध यादें, फोटो स्नैपशॉट और ऑडियो मेमो",
+            "write_new_note" to "नई दैनिक प्रविष्टि लिखें",
+            "edit_note" to "नोटपाद प्रविष्टि संपादित करें",
+            "calendar_now" to "कैलेंडर: अभी",
+            "input_placeholder" to "अपने दैनिक विचार, चेकलिस्ट या सामान्य अपडेट टाइप करें...",
+            "attached_media" to "संलग्न मीडिया फाइलें:",
+            "add_media" to "मीडिया जोड़ें",
+            "clear" to "साफ़ करें",
+            "cancel" to "रद्द करें",
+            "save_journal" to "नोट सहेजें",
+            "update_note" to "अपडेट करें",
+            "search_placeholder" to "नोटपैड में खोजें...",
+            "saved_history" to "सहेजे गए नोटबुक इतिहास",
+            "filtered_results" to "फ़िल्टर किए गए परिणाम",
+            "entries_label" to "प्रविष्टियां",
+            "empty_state_title" to "अभी तक कोई नोट सहेजा नहीं गया है।",
+            "empty_state_search_title" to "कोई मिलान प्रविष्टि नहीं मिली।",
+            "empty_state_subtitle" to "अपने नोटबुक इतिहास को आबाद करने के लिए मीडिया फ़ाइलें जोड़ें या नोट लिखें।",
+            "empty_state_search_subtitle" to "खोज वर्तनी या कीवर्ड को बदलने का प्रयास करें।",
+            "ai_triage_chat" to "एआई चैट",
+            "settings" to "सेटिंग्स",
+            "adjust_ui_theme" to "थीम बदलें",
+            "font_size_scale" to "फ़ॉन्ट स्केल",
+            "language" to "भाषा",
+            "ui_contrast" to "स्क्रीन कंट्रास्ट",
+            "system_default" to "सिस्टम डिफ़ॉल्ट",
+            "light_theme" to "लाइट थीम",
+            "dark_theme" to "डार्क थीम",
+            "font_small" to "छोटा (85%)",
+            "font_medium" to "सामान्य (डिफ़ॉल्ट)",
+            "font_large" to "बड़ा (115%)",
+            "font_extra_large" to "अतिरिक्त बड़ा (130%)",
+            "normal_contrast" to "सामान्य कंट्रास्ट",
+            "high_contrast" to "उच्च कंट्रास्ट",
+            "close" to "बंद करें"
+        ),
+        "zh" to mapOf(
+            "app_title" to "每日笔记本",
+            "app_subtitle" to "丰富回忆、照片快照与语音备忘录",
+            "write_new_note" to "撰写新日记",
+            "edit_note" to "编辑日记",
+            "calendar_now" to "日历: 现在",
+            "input_placeholder" to "输入每日想法、清单、观察或日常更新...",
+            "attached_media" to "已附加媒体文件:",
+            "add_media" to "添加媒体",
+            "clear" to "清除",
+            "cancel" to "取消",
+            "save_journal" to "保存日记",
+            "update_note" to "更新日记",
+            "search_placeholder" to "通过关键字过滤日记...",
+            "saved_history" to "已保存的日记记录",
+            "filtered_results" to "过滤后的结果",
+            "entries_label" to "条记录",
+            "empty_state_title" to "尚无保存的日记记录。",
+            "empty_state_search_title" to "未找到匹配的日记。",
+            "empty_state_subtitle" to "点击“添加媒体”或撰写自定义日志来充实您的安全本地笔记本历史。",
+            "empty_state_search_subtitle" to "尝试调整搜索拼写或关键字。",
+            "ai_triage_chat" to "AI 导诊聊天",
+            "settings" to "设置",
+            "adjust_ui_theme" to "调整界面主题",
+            "font_size_scale" to "字体大小缩放",
+            "language" to "语言",
+            "ui_contrast" to "界面对比度模式",
+            "system_default" to "系统默认",
+            "light_theme" to "浅色",
+            "dark_theme" to "深色",
+            "font_small" to "小 (85%)",
+            "font_medium" to "中 (默认)",
+            "font_large" to "大 (115%)",
+            "font_extra_large" to "超大 (130%)",
+            "normal_contrast" to "普通对比度",
+            "high_contrast" to "高对比度",
+            "close" to "关闭"
+        ),
+        "ja" to mapOf(
+            "app_title" to "デイリーメモ帳",
+            "app_subtitle" to "豊かな思い出、写真スナップと音声メモ",
+            "write_new_note" to "新しい日記を書く",
+            "edit_note" to "日記のエントリを編集",
+            "calendar_now" to "カレンダー: 現在",
+            "input_placeholder" to "毎日の考え、チェックリスト、観察、または一般的な更新を入力...",
+            "attached_media" to "添付されたメディア:",
+            "add_media" to "メディアを追加",
+            "clear" to "クリア",
+            "cancel" to "キャンセル",
+            "save_journal" to "日記を保存",
+            "update_note" to "日記を更新",
+            "search_placeholder" to "キーワードで日記を検索...",
+            "saved_history" to "保存された日記履歴",
+            "filtered_results" to "フィルター結果",
+            "entries_label" to "件",
+            "empty_state_title" to "保存された日記はありません。",
+            "empty_state_search_title" to "一致する日記が見つかりません。",
+            "empty_state_subtitle" to "「メディアを追加」をクリックするか、記述を始めてローカルの安全なメモ帳履歴を充実させましょう。",
+            "empty_state_search_subtitle" to "検索ワードやキーワードを調整してみてください。",
+            "ai_triage_chat" to "AIチャット",
+            "settings" to "設定",
+            "adjust_ui_theme" to "テーマ調整",
+            "font_size_scale" to "文字サイズ",
+            "language" to "言語",
+            "ui_contrast" to "コントラスト",
+            "system_default" to "システム設定",
+            "light_theme" to "ライト",
+            "dark_theme" to "ダーク",
+            "font_small" to "小 (85%)",
+            "font_medium" to "中 (デフォルト)",
+            "font_large" to "大 (115%)",
+            "font_extra_large" to "特大 (130%)",
+            "normal_contrast" to "標準コントラスト",
+            "high_contrast" to "高コントラスト",
+            "close" to "閉じる"
+        )
+    )
+
+    fun translate(key: String, lang: String): String {
+        return translations[lang]?.get(key) ?: translations["en"]?.get(key) ?: key
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
@@ -61,6 +298,14 @@ fun DashboardScreen(
     val apiLoading by viewModel.apiLoading.collectAsState()
     val statusMsg by viewModel.statusMessage.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+
+    // --- Dynamic Customization settings ---
+    val currentLanguage by viewModel.appLanguage.collectAsState()
+    val currentThemeMode by viewModel.themeMode.collectAsState()
+    val currentFontScale by viewModel.fontScale.collectAsState()
+    val currentContrastMode by viewModel.contrastMode.collectAsState()
+
+    var showSettingsDialog by remember { mutableStateOf(false) }
 
     var activeNoteText by remember { mutableStateOf("") }
     var editingLogId by remember { mutableStateOf<Int?>(null) }
@@ -242,14 +487,14 @@ fun DashboardScreen(
                 title = {
                     Column {
                         Text(
-                            "DAILY NOTEPAD",
+                            Translator.translate("app_title", currentLanguage),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = 1.sp
                             )
                         )
                         Text(
-                            "RICH MEMORIES, PHOTO SNAPSHOTS & AUDIO MEMOS",
+                            Translator.translate("app_subtitle", currentLanguage),
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 letterSpacing = 0.5.sp
@@ -262,6 +507,16 @@ fun DashboardScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 actions = {
+                    IconButton(
+                        onClick = { showSettingsDialog = true },
+                        modifier = Modifier.testTag("settings_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = Translator.translate("settings", currentLanguage),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     IconButton(
                         onClick = { showShareExportDialog = true },
                         modifier = Modifier.testTag("share_notebook_button")
@@ -279,7 +534,7 @@ fun DashboardScreen(
                             modifier = Modifier.padding(end = 12.dp)
                         ) {
                             Text(
-                                text = "${rawLogs.size} ENTRIES",
+                                text = "${rawLogs.size} ${Translator.translate("entries_label", currentLanguage)}",
                                 color = MaterialTheme.colorScheme.primary,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
@@ -355,7 +610,7 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (editingLogId != null) "EDIT NOTEPAD ENTRY" else "WRITE NEW DAILY NOTE",
+                                text = if (editingLogId != null) Translator.translate("edit_note", currentLanguage) else Translator.translate("write_new_note", currentLanguage),
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary,
@@ -381,7 +636,7 @@ fun DashboardScreen(
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Text(
-                                        text = if (customDate == null) "Calendar: Now" else dayFormatter.format(customDate!!),
+                                        text = if (customDate == null) Translator.translate("calendar_now", currentLanguage) else dayFormatter.format(customDate!!),
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary
@@ -402,7 +657,7 @@ fun DashboardScreen(
                             onValueChange = { activeNoteText = it },
                             placeholder = {
                                 Text(
-                                    "Type daily thoughts, checklists, observations, or general standard updates...",
+                                    Translator.translate("input_placeholder", currentLanguage),
                                     fontSize = 13.sp,
                                     lineHeight = 18.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
@@ -548,7 +803,7 @@ fun DashboardScreen(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "ADD MEDIA",
+                                            text = Translator.translate("add_media", currentLanguage),
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Black
                                         )
@@ -633,7 +888,7 @@ fun DashboardScreen(
                                             .testTag("clear_button")
                                     ) {
                                         Text(
-                                            text = if (editingLogId != null) "CANCEL" else "CLEAR",
+                                            text = if (editingLogId != null) Translator.translate("cancel", currentLanguage) else Translator.translate("clear", currentLanguage),
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -669,7 +924,7 @@ fun DashboardScreen(
                                         CircularProgressIndicator(modifier = Modifier.size(18.dp), color = Color.White)
                                     } else {
                                         Text(
-                                            text = if (editingLogId != null) "UPDATE NOTE" else "SAVE JOURNAL NOTE",
+                                            text = if (editingLogId != null) Translator.translate("update_note", currentLanguage) else Translator.translate("save_journal", currentLanguage),
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -688,7 +943,7 @@ fun DashboardScreen(
                     onValueChange = { viewModel.setSearchQuery(it) },
                     placeholder = {
                         Text(
-                            "Filter notepad items by search phrase...",
+                            Translator.translate("search_placeholder", currentLanguage),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
@@ -728,7 +983,7 @@ fun DashboardScreen(
             // History Header
             item {
                 Text(
-                    text = if (searchQuery.isEmpty()) "SAVED NOTEPAD HISTORY" else "FILTERED RESULTS (${logs.size})",
+                    text = if (searchQuery.isEmpty()) Translator.translate("saved_history", currentLanguage) else "${Translator.translate("filtered_results", currentLanguage)} (${logs.size})",
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -762,7 +1017,7 @@ fun DashboardScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = if (searchQuery.isEmpty()) "No saved journal entries yet." else "No matching notes found.",
+                                text = if (searchQuery.isEmpty()) Translator.translate("empty_state_title", currentLanguage) else Translator.translate("empty_state_search_title", currentLanguage),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
@@ -770,7 +1025,7 @@ fun DashboardScreen(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = if (searchQuery.isEmpty()) "Click ADD MEDIA or write custom logs to populate your secure local notebook history." else "Try adjusting search spelling or keyword.",
+                                text = if (searchQuery.isEmpty()) Translator.translate("empty_state_subtitle", currentLanguage) else Translator.translate("empty_state_search_subtitle", currentLanguage),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 textAlign = TextAlign.Center
@@ -1723,6 +1978,260 @@ fun DashboardScreen(
                             TextButton(onClick = { selectedPreviewImageUri = null }) {
                                 Text("CLOSE PREVIEW", fontWeight = FontWeight.SemiBold)
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Custom Accessibility & App Preferences Settings Dialog ---
+        if (showSettingsDialog) {
+            Dialog(onDismissRequest = { showSettingsDialog = false }) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .testTag("settings_dialog_card"),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Title Row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "⚙️ " + Translator.translate("settings", currentLanguage),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 1.sp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            )
+                            IconButton(onClick = { showSettingsDialog = false }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Close settings"
+                                )
+                            }
+                        }
+
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                        // 1. Theme Configuration
+                        Text(
+                            text = Translator.translate("adjust_ui_theme", currentLanguage),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val themes = listOf(
+                                "system" to Translator.translate("system_default", currentLanguage),
+                                "light" to Translator.translate("light_theme", currentLanguage),
+                                "dark" to Translator.translate("dark_theme", currentLanguage)
+                            )
+                            themes.forEach { (mode, label) ->
+                                val isSelected = currentThemeMode == mode
+                                Button(
+                                    onClick = { viewModel.setThemeMode(mode) },
+                                    modifier = Modifier.weight(1f).testTag("theme_btn_$mode"),
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                ) {
+                                    Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                                }
+                            }
+                        }
+
+                        // 2. Font Scale Configuration
+                        Text(
+                            text = Translator.translate("font_size_scale", currentLanguage),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val scales = listOf(
+                                0.85f to Translator.translate("font_small", currentLanguage),
+                                1.0f to Translator.translate("font_medium", currentLanguage),
+                                1.15f to Translator.translate("font_large", currentLanguage),
+                                1.3f to Translator.translate("font_extra_large", currentLanguage)
+                            )
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    scales.take(2).forEach { (factor, label) ->
+                                        val isSelected = currentFontScale == factor
+                                        Button(
+                                            onClick = { viewModel.setFontScale(factor) },
+                                            modifier = Modifier.weight(1f).testTag("font_btn_$factor"),
+                                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                                contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        ) {
+                                            Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    scales.drop(2).forEach { (factor, label) ->
+                                        val isSelected = currentFontScale == factor
+                                        Button(
+                                            onClick = { viewModel.setFontScale(factor) },
+                                            modifier = Modifier.weight(1f).testTag("font_btn_$factor"),
+                                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                                contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        ) {
+                                            Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 3. Language Configuration
+                        Text(
+                            text = Translator.translate("language", currentLanguage),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            val languages = listOf(
+                                "en" to "EN 🇺🇸",
+                                "es" to "ES 🇪🇸",
+                                "hi" to "HI 🇮🇳",
+                                "fr" to "FR 🇫🇷",
+                                "zh" to "ZH 🇨🇳",
+                                "ja" to "JA 🇯🇵"
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                languages.take(3).forEach { (code, flagLabel) ->
+                                    val isSelected = currentLanguage == code
+                                    Button(
+                                        onClick = { viewModel.setAppLanguage(code) },
+                                        modifier = Modifier.weight(1f).testTag("lang_btn_$code"),
+                                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    ) {
+                                        Text(text = flagLabel, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                languages.drop(3).forEach { (code, flagLabel) ->
+                                    val isSelected = currentLanguage == code
+                                    Button(
+                                        onClick = { viewModel.setAppLanguage(code) },
+                                        modifier = Modifier.weight(1f).testTag("lang_btn_$code"),
+                                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    ) {
+                                        Text(text = flagLabel, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+
+                        // 4. Contrast Mode Configuration
+                        Text(
+                            text = Translator.translate("ui_contrast", currentLanguage),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val contrastOptions = listOf(
+                                "normal" to Translator.translate("normal_contrast", currentLanguage),
+                                "high" to Translator.translate("high_contrast", currentLanguage)
+                            )
+                            contrastOptions.forEach { (mode, label) ->
+                                val isSelected = currentContrastMode == mode
+                                Button(
+                                    onClick = { viewModel.setContrastMode(mode) },
+                                    modifier = Modifier.weight(1f).testTag("contrast_btn_$mode"),
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                ) {
+                                    Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Dialog Control Action Row
+                        Button(
+                            onClick = { showSettingsDialog = false },
+                            modifier = Modifier.fillMaxWidth().testTag("settings_close_btn"),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = Translator.translate("close", currentLanguage),
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }

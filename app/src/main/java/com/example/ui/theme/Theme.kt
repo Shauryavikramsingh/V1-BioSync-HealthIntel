@@ -10,6 +10,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
+import androidx.compose.ui.graphics.Color
+
 private val DarkColorScheme =
   darkColorScheme(primary = Purple80, secondary = PurpleGrey80, tertiary = Pink80)
 
@@ -18,35 +20,64 @@ private val LightColorScheme =
     primary = Purple40,
     secondary = PurpleGrey40,
     tertiary = Pink40,
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
   )
+
+private val HighContrastDarkColorScheme = darkColorScheme(
+    primary = Color(0xFFFFFF00), // High Contrast Yellow
+    onPrimary = Color.Black,
+    secondary = Color(0xFF00FFFF), // High Contrast Cyan
+    onSecondary = Color.Black,
+    background = Color.Black,
+    onBackground = Color.White,
+    surface = Color.Black,
+    onSurface = Color.White,
+    surfaceVariant = Color(0xFF1C1C1C),
+    onSurfaceVariant = Color.White,
+    outline = Color.White,
+    outlineVariant = Color.White
+)
+
+private val HighContrastLightColorScheme = lightColorScheme(
+    primary = Color(0xFF0000FF), // High Contrast Pure Blue
+    onPrimary = Color.White,
+    secondary = Color(0xFF006600), // High Contrast Dark Green
+    onSecondary = Color.White,
+    background = Color.White,
+    onBackground = Color.Black,
+    surface = Color.White,
+    onSurface = Color.Black,
+    surfaceVariant = Color(0xFFF2F2F2),
+    onSurfaceVariant = Color.Black,
+    outline = Color.Black,
+    outlineVariant = Color.Black
+)
 
 @Composable
 fun MyApplicationTheme(
-  darkTheme: Boolean = isSystemInDarkTheme(),
-  // Dynamic color is available on Android 12+
-  dynamicColor: Boolean = true,
+  themeMode: String = "system",
+  contrastMode: String = "normal",
+  fontScale: Float = 1.0f,
   content: @Composable () -> Unit,
 ) {
-  val colorScheme =
-    when {
-      dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-        val context = LocalContext.current
-        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-      }
+  val darkTheme = when (themeMode) {
+    "light" -> false
+    "dark" -> true
+    else -> isSystemInDarkTheme()
+  }
 
-      darkTheme -> DarkColorScheme
-      else -> LightColorScheme
+  val colorScheme = when {
+    contrastMode == "high" -> {
+      if (darkTheme) HighContrastDarkColorScheme else HighContrastLightColorScheme
     }
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+      val context = LocalContext.current
+      if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    }
+    darkTheme -> DarkColorScheme
+    else -> LightColorScheme
+  }
 
-  MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+  val scaledTypography = getScaledTypography(fontScale)
+
+  MaterialTheme(colorScheme = colorScheme, typography = scaledTypography, content = content)
 }

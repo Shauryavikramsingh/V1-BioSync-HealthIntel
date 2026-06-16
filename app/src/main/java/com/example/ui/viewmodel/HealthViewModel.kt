@@ -18,6 +18,41 @@ class HealthViewModel(application: Application) : AndroidViewModel(application) 
     private val repository: HealthRepository
     val hasApiKey: Boolean
 
+    // --- Persistent App UI & Accessibility Settings ---
+    private val prefs = application.getSharedPreferences("notepad_settings", android.content.Context.MODE_PRIVATE)
+
+    private val _themeMode = MutableStateFlow(prefs.getString("theme_mode", "system") ?: "system")
+    val themeMode = _themeMode.asStateFlow()
+
+    private val _fontScale = MutableStateFlow(prefs.getFloat("font_scale", 1.0f))
+    val fontScale = _fontScale.asStateFlow()
+
+    private val _contrastMode = MutableStateFlow(prefs.getString("contrast_mode", "normal") ?: "normal")
+    val contrastMode = _contrastMode.asStateFlow()
+
+    private val _appLanguage = MutableStateFlow(prefs.getString("app_language", "en") ?: "en")
+    val appLanguage = _appLanguage.asStateFlow()
+
+    fun setThemeMode(mode: String) {
+        _themeMode.value = mode
+        prefs.edit().putString("theme_mode", mode).apply()
+    }
+
+    fun setFontScale(scale: Float) {
+        _fontScale.value = scale
+        prefs.edit().putFloat("font_scale", scale).apply()
+    }
+
+    fun setContrastMode(mode: String) {
+        _contrastMode.value = mode
+        prefs.edit().putString("contrast_mode", mode).apply()
+    }
+
+    fun setAppLanguage(lang: String) {
+        _appLanguage.value = lang
+        prefs.edit().putString("app_language", lang).apply()
+    }
+
     init {
         val database = HealthDatabase.getDatabase(application)
         repository = HealthRepository(database.healthDao())

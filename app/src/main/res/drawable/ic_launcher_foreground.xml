@@ -3,6 +3,7 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/ic_launcher_foreground_logo_1780658445930"
+        android:drawable="@drawable/biosync_logo"
         android:gravity="center" />
 </layer-list>
+

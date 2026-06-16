@@ -24,7 +24,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            MyApplicationTheme {
+            val themeMode by viewModel.themeMode.collectAsState()
+            val contrastMode by viewModel.contrastMode.collectAsState()
+            val fontScale by viewModel.fontScale.collectAsState()
+
+            MyApplicationTheme(
+                themeMode = themeMode,
+                contrastMode = contrastMode,
+                fontScale = fontScale
+            ) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
