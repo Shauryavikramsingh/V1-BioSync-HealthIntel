@@ -1,3 +1,9 @@
+import java.net.URL
+import java.net.URI
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.FileOutputStream
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -119,3 +125,36 @@ dependencies {
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
 }
+
+val destIconFile = file("src/main/res/drawable/biosync_logo.png")
+
+tasks.register("downloadCustomIcon") {
+    val dest = destIconFile
+    doLast {
+        try {
+            println("Downloading custom icon from input URL...")
+            val url = URI("https://github.com/Shauryavikramsingh/V1-BioSync-HealthIntel/raw/main/Icon.png").toURL()
+            val connection = url.openConnection()
+            connection.connect()
+            val inputStream: InputStream = connection.getInputStream()
+            val outputStream: OutputStream = FileOutputStream(dest)
+            val buffer = ByteArray(4096)
+            var bytesRead = inputStream.read(buffer)
+            while (bytesRead != -1) {
+                outputStream.write(buffer, 0, bytesRead)
+                bytesRead = inputStream.read(buffer)
+            }
+            outputStream.flush()
+            outputStream.close()
+            inputStream.close()
+            println("Downloaded custom icon successfully!")
+        } catch (e: Exception) {
+            println("Failed to download custom icon: ${e.message}")
+        }
+    }
+}
+
+tasks.matching { it.name == "preBuild" }.all {
+    dependsOn("downloadCustomIcon")
+}
+

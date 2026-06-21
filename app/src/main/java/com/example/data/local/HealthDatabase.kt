@@ -6,8 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.data.model.DailyLog
 import com.example.data.model.LabReport
+import com.example.data.model.Alarm
 
-@Database(entities = [DailyLog::class, LabReport::class], version = 2, exportSchema = false)
+@Database(entities = [DailyLog::class, LabReport::class, Alarm::class], version = 3, exportSchema = false)
 abstract class HealthDatabase : RoomDatabase() {
 
     abstract fun healthDao(): HealthDao

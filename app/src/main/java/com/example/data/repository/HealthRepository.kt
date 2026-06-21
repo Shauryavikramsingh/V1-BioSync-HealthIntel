@@ -34,6 +34,13 @@ class HealthRepository(private val healthDao: HealthDao) {
     suspend fun deleteReport(report: LabReport) = healthDao.deleteReport(report)
     suspend fun deleteReportById(id: Int) = healthDao.deleteReportById(id)
 
+    // --- Alarms ---
+    val allAlarms: Flow<List<com.example.data.model.Alarm>> = healthDao.getAllAlarms()
+    suspend fun getAlarmById(id: String): com.example.data.model.Alarm? = healthDao.getAlarmById(id)
+    suspend fun insertAlarm(alarm: com.example.data.model.Alarm) = healthDao.insertAlarm(alarm)
+    suspend fun deleteAlarm(alarm: com.example.data.model.Alarm) = healthDao.deleteAlarm(alarm)
+    suspend fun deleteAlarmById(id: String) = healthDao.deleteAlarmById(id)
+
     fun calculateDriftScore(
         glucose: Double?,
         bpSystolic: Int?,

@@ -12,6 +12,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -27,7 +31,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -85,7 +94,17 @@ object Translator {
             "font_extra_large" to "Extra Large (130%)",
             "normal_contrast" to "Normal Contrast",
             "high_contrast" to "High Contrast",
-            "close" to "Close"
+            "close" to "Close",
+            "alarm_btn" to "ALARM",
+            "alarm_title" to "CLOCK & MEDICATION TIMER",
+            "med_name" to "Medication Name",
+            "timer_sec" to "Timer Duration",
+            "timer_note" to "Reminder notes when ringing",
+            "start_timer" to "START SPEEDY TIMER",
+            "active_timers" to "ACTIVE RUNNING TIMERS",
+            "no_timers" to "No active medication alarms.",
+            "ringing_reminder" to "🚨 MEDICATION RINGS! 🚨",
+            "took_med" to "ACKNOWLEDGE & TAKEN"
         ),
         "es" to mapOf(
             "app_title" to "BLOC DE NOTAS DIARIO",
@@ -123,7 +142,17 @@ object Translator {
             "font_extra_large" to "Muy Grande (130%)",
             "normal_contrast" to "Contraste normal",
             "high_contrast" to "Alto contraste",
-            "close" to "Cerrar"
+            "close" to "Cerrar",
+            "alarm_btn" to "ALARMA",
+            "alarm_title" to "RELOJ Y TEMPORIZADOR DE MEDICINAS",
+            "med_name" to "Nombre del medicamento",
+            "timer_sec" to "Duración del temporizador",
+            "timer_note" to "Notas de recordatorios",
+            "start_timer" to "INICIAR TEMPORIZADOR",
+            "active_timers" to "TEMPORIZADORES ACTIVOS",
+            "no_timers" to "No hay temporizadores activos.",
+            "ringing_reminder" to "🚨 ALARMA DE MEDICINA! 🚨",
+            "took_med" to "TOMADO Y TRATADO"
         ),
         "fr" to mapOf(
             "app_title" to "BLOC-NOTES QUOTIDIEN",
@@ -161,7 +190,17 @@ object Translator {
             "font_extra_large" to "Très Grand (130%)",
             "normal_contrast" to "Contraste Normal",
             "high_contrast" to "Contraste Élevé",
-            "close" to "Fermer"
+            "close" to "Fermer",
+            "alarm_btn" to "ALARME",
+            "alarm_title" to "HORLOGE & CHRONO MÉDICAMENTS",
+            "med_name" to "Nom du médicament",
+            "timer_sec" to "Durée du minuteur",
+            "timer_note" to "Notes de rappel",
+            "start_timer" to "LANCER LE MINUTEUR",
+            "active_timers" to "ALARMES ACTIVES",
+            "no_timers" to "Pas d'alarmes actives.",
+            "ringing_reminder" to "🚨 RAPPEL DE MÉDICAMENT! 🚨",
+            "took_med" to "NOTER ET PRENDRE"
         ),
         "hi" to mapOf(
             "app_title" to "दैनिक नोटबुक",
@@ -199,7 +238,17 @@ object Translator {
             "font_extra_large" to "अतिरिक्त बड़ा (130%)",
             "normal_contrast" to "सामान्य कंट्रास्ट",
             "high_contrast" to "उच्च कंट्रास्ट",
-            "close" to "बंद करें"
+            "close" to "बंद करें",
+            "alarm_btn" to "अलार्म",
+            "alarm_title" to "घड़ी और दवा टाइमर",
+            "med_name" to "दवा का नाम",
+            "timer_sec" to "टाइमर की अवधि",
+            "timer_note" to "दवा लेने के निर्देश",
+            "start_timer" to "टाइमर शुरू करें",
+            "active_timers" to "सक्रिय अलार्म लाइव",
+            "no_timers" to "कोई सक्रिय अलार्म नहीं है।",
+            "ringing_reminder" to "🚨 दवा का समय हो गया! 🚨",
+            "took_med" to "दवा ले ली है"
         ),
         "zh" to mapOf(
             "app_title" to "每日笔记本",
@@ -237,7 +286,17 @@ object Translator {
             "font_extra_large" to "超大 (130%)",
             "normal_contrast" to "普通对比度",
             "high_contrast" to "高对比度",
-            "close" to "关闭"
+            "close" to "关闭",
+            "alarm_btn" to "用药闹钟",
+            "alarm_title" to "时钟与服药计时器",
+            "med_name" to "药品名称",
+            "timer_sec" to "倒计时时长",
+            "timer_note" to "闹响时的提醒备注",
+            "start_timer" to "开始计时",
+            "active_timers" to "进行中的服药计时器",
+            "no_timers" to "当前无正在运行的用药闹钟。",
+            "ringing_reminder" to "🚨 服药时间到了！ 🚨",
+            "took_med" to "确认已服药"
         ),
         "ja" to mapOf(
             "app_title" to "デイリーメモ帳",
@@ -275,12 +334,131 @@ object Translator {
             "font_extra_large" to "特大 (130%)",
             "normal_contrast" to "標準コントラスト",
             "high_contrast" to "高コントラスト",
-            "close" to "閉じる"
+            "close" to "閉じる",
+            "alarm_btn" to "アラーム",
+            "alarm_title" to "時計と服薬タイマー",
+            "med_name" to "お薬の名前",
+            "timer_sec" to "タイマー時間設定",
+            "timer_note" to "アラーム時のメモ",
+            "start_timer" to "タイマーを開始",
+            "active_timers" to "実行中の服薬タイマー",
+            "no_timers" to "有効な服薬アラームはありません。",
+            "ringing_reminder" to "🚨 お薬の時間です！ 🚨",
+            "took_med" to "服用完了を記録"
         )
     )
 
     fun translate(key: String, lang: String): String {
         return translations[lang]?.get(key) ?: translations["en"]?.get(key) ?: key
+    }
+}
+
+@Composable
+fun ClockWidget(modifier: Modifier = Modifier) {
+    var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTime = System.currentTimeMillis()
+            delay(100)
+        }
+    }
+    
+    val cal = Calendar.getInstance().apply { timeInMillis = currentTime }
+    val hr = cal.get(Calendar.HOUR)
+    val min = cal.get(Calendar.MINUTE)
+    val sec = cal.get(Calendar.SECOND)
+    val ms = cal.get(Calendar.MILLISECOND)
+
+    val sweepColor = MaterialTheme.colorScheme.primary
+    val handColor = MaterialTheme.colorScheme.onSurface
+    val ticksColor = MaterialTheme.colorScheme.outlineVariant
+
+    Canvas(modifier = modifier.size(150.dp)) {
+        val center = size.center
+        val radius = size.minDimension / 2.0f
+
+        // Draw outer clock bezel rim
+        drawCircle(
+            color = sweepColor,
+            radius = radius,
+            style = Stroke(width = 3.dp.toPx())
+        )
+        // Draw inner clock background dial
+        drawCircle(
+            color = sweepColor.copy(alpha = 0.05f),
+            radius = radius
+        )
+
+        // Draw dial tick marks (60 ticks for minutes/seconds)
+        for (i in 0 until 60) {
+            val isHourMarker = i % 5 == 0
+            val angleRad = (i * 6.0f) * (Math.PI / 180f).toFloat()
+            val startRadius = radius - (if (isHourMarker) 10.dp.toPx() else 5.dp.toPx())
+            val endRadius = radius - 1.dp.toPx()
+            
+            val startX = center.x + startRadius * kotlin.math.sin(angleRad)
+            val startY = center.y - startRadius * kotlin.math.cos(angleRad)
+            val endX = center.x + endRadius * kotlin.math.sin(angleRad)
+            val endY = center.y - endRadius * kotlin.math.cos(angleRad)
+
+            drawLine(
+                color = if (isHourMarker) sweepColor else ticksColor,
+                start = Offset(startX, startY),
+                end = Offset(endX, endY),
+                strokeWidth = if (isHourMarker) 2.dp.toPx() else 1.dp.toPx()
+            )
+        }
+
+        // Calculations for hands angles
+        val secAngle = ((sec + ms / 1000f) * 6f) * (Math.PI / 180f).toFloat()
+        val minAngle = ((min + sec / 60f) * 6f) * (Math.PI / 180f).toFloat()
+        val hrAngle = (((hr % 12) * 30f) + (min / 2f)) * (Math.PI / 180f).toFloat()
+
+        // Hour Hand
+        val hrLength = radius * 0.5f
+        val hrX = center.x + hrLength * kotlin.math.sin(hrAngle)
+        val hrY = center.y - hrLength * kotlin.math.cos(hrAngle)
+        drawLine(
+            color = handColor,
+            start = center,
+            end = Offset(hrX, hrY),
+            strokeWidth = 4.5.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+
+        // Minute Hand
+        val minLength = radius * 0.72f
+        val minX = center.x + minLength * kotlin.math.sin(minAngle)
+        val minY = center.y - minLength * kotlin.math.cos(minAngle)
+        drawLine(
+            color = handColor,
+            start = center,
+            end = Offset(minX, minY),
+            strokeWidth = 2.8.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+
+        // Sweeping Second Hand
+        val secLength = radius * 0.85f
+        val secX = center.x + secLength * kotlin.math.sin(secAngle)
+        val secY = center.y - secLength * kotlin.math.cos(secAngle)
+        drawLine(
+            color = sweepColor,
+            start = center,
+            end = Offset(secX, secY),
+            strokeWidth = 1.5.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+
+        // Center rivet pin
+        drawCircle(
+            color = sweepColor,
+            radius = 4.dp.toPx()
+        )
+        drawCircle(
+            color = handColor,
+            radius = 2.dp.toPx()
+        )
     }
 }
 
@@ -306,6 +484,13 @@ fun DashboardScreen(
     val currentContrastMode by viewModel.contrastMode.collectAsState()
 
     var showSettingsDialog by remember { mutableStateOf(false) }
+    var showMedicationTimerDialog by remember { mutableStateOf(false) }
+
+    val activeTimers by viewModel.activeTimers.collectAsState()
+    val ringingTimer by viewModel.ringingTimer.collectAsState()
+    val persistentAlarms by viewModel.alarms.collectAsState()
+    val ringingAlarm by viewModel.ringingAlarm.collectAsState()
+
 
     var activeNoteText by remember { mutableStateOf("") }
     var editingLogId by remember { mutableStateOf<Int?>(null) }
@@ -507,6 +692,34 @@ fun DashboardScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 actions = {
+                    Button(
+                        onClick = { showMedicationTimerDialog = true },
+                        modifier = Modifier
+                            .padding(end = 6.dp)
+                            .testTag("medication_alarm_button"),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = Translator.translate("alarm_btn", currentLanguage),
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Text(
+                                text = Translator.translate("alarm_btn", currentLanguage),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
                     IconButton(
                         onClick = { showSettingsDialog = true },
                         modifier = Modifier.testTag("settings_button")
@@ -1977,6 +2190,760 @@ fun DashboardScreen(
                         ) {
                             TextButton(onClick = { selectedPreviewImageUri = null }) {
                                 Text("CLOSE PREVIEW", fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Ringing Medication Alarm Popup Window ---
+        ringingTimer?.let { medRinging ->
+            Dialog(onDismissRequest = { /* forces user action */ }) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .border(3.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(24.dp))
+                        .testTag("medication_ringing_dialog"),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Ringing bell",
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(64.dp)
+                        )
+
+                        Text(
+                            text = Translator.translate("ringing_reminder", currentLanguage),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                textAlign = TextAlign.Center
+                            )
+                        )
+
+                        Text(
+                            text = medRinging.medicationName,
+                            style = MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error,
+                                textAlign = TextAlign.Center
+                            )
+                        )
+
+                        if (medRinging.note.isNotBlank()) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                                )
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Text(
+                                        text = "📄 " + medRinging.note,
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        ),
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(
+                                onClick = { viewModel.acknowledgeAndLogMedication(medRinging) },
+                                modifier = Modifier.weight(1f).testTag("acknowledge_med_btn"),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError
+                                ),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = Translator.translate("took_med", currentLanguage),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp
+                                )
+                            }
+
+                            OutlinedButton(
+                                onClick = { viewModel.dismissRingingAlarm() },
+                                modifier = Modifier.weight(0.7f).testTag("snooze_med_btn"),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            ) {
+                                Text(
+                                    text = Translator.translate("cancel", currentLanguage),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Full-Screen Active Alarm Takeover Dialog (Screen C) ---
+        ringingAlarm?.let { activeAlarm ->
+            Dialog(onDismissRequest = { /* forces user action */ }) {
+                val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                val pulseScale by infiniteTransition.animateFloat(
+                    initialValue = 0.95f,
+                    targetValue = 1.15f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1200, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "scale"
+                )
+                val pulseAlpha by infiniteTransition.animateFloat(
+                    initialValue = 0.2f,
+                    targetValue = 0.7f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1200, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "alpha"
+                )
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(28.dp))
+                        .testTag("full_screen_alarm_ringing_dialog"),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF1A1A1A)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(110.dp)
+                                .scale(pulseScale)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Active Ringing",
+                                tint = Color.White,
+                                modifier = Modifier.size(54.dp)
+                            )
+                        }
+
+                        Text(
+                            text = "🚨 ALARM RINGING 🚨",
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                letterSpacing = 2.sp,
+                                textAlign = TextAlign.Center
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        var liveTimeText by remember { mutableStateOf("") }
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                liveTimeText = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
+                                delay(1000)
+                            }
+                        }
+                        Text(
+                            text = liveTimeText.ifBlank { "%02d:%02d".format(activeAlarm.hour, activeAlarm.minute) },
+                            style = TextStyle(
+                                fontSize = 52.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                letterSpacing = (-1).sp
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Text(
+                            text = activeAlarm.label,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                textAlign = TextAlign.Center
+                            )
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            SuggestionChip(
+                                onClick = {},
+                                label = { Text("🔊 ${activeAlarm.soundUri}", color = Color.White) },
+                                colors = SuggestionChipDefaults.suggestionChipColors(
+                                    containerColor = Color.White.copy(alpha = 0.1f)
+                                )
+                            )
+                            if (activeAlarm.vibrationEnabled) {
+                                SuggestionChip(
+                                    onClick = {},
+                                    label = { Text("📳 Vibration On", color = Color.White) },
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = Color.White.copy(alpha = 0.1f)
+                                    )
+                                )
+                            }
+                        }
+
+                        Divider(color = Color.White.copy(alpha = 0.15f), modifier = Modifier.padding(vertical = 4.dp))
+
+                        Button(
+                            onClick = { viewModel.snoozeAlarm(activeAlarm) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .testTag("snooze_alarm_btn"),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(
+                                "SNOOZE (${activeAlarm.snoozeDuration} MINS)",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 14.sp
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                "DRAG SLIDER ALL THE WAY RIGHT TO DISMISS",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White.copy(alpha = 0.6f),
+                                letterSpacing = 1.sp
+                            )
+                            
+                            var dismissSliderValue by remember { mutableStateOf(0.0f) }
+                            Slider(
+                                value = dismissSliderValue,
+                                onValueChange = { newValue ->
+                                    if (newValue >= 0.92f) {
+                                        viewModel.dismissAlarm(activeAlarm)
+                                        dismissSliderValue = 0.0f
+                                    } else {
+                                        dismissSliderValue = newValue
+                                    }
+                                },
+                                onValueChangeFinished = {
+                                    if (dismissSliderValue < 0.92f) {
+                                        dismissSliderValue = 0.0f
+                                    }
+                                },
+                                colors = SliderDefaults.colors(
+                                    thumbColor = MaterialTheme.colorScheme.error,
+                                    activeTrackColor = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
+                                    inactiveTrackColor = Color.White.copy(alpha = 0.15f)
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("dismiss_alarm_slider")
+                                    .padding(horizontal = 12.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Full-Fledged Medication Alarms & Clock Timer Dialog Window ---
+        if (showMedicationTimerDialog) {
+            Dialog(onDismissRequest = { showMedicationTimerDialog = false }) {
+                var alarmSubView by remember { mutableStateOf("list") } // "list", "add", "edit"
+                var editingAlarm by remember { mutableStateOf<com.example.data.model.Alarm?>(null) }
+
+                // Form/Edit state bindings
+                var sHour by remember { mutableStateOf(7) }
+                var sMinute by remember { mutableStateOf(30) }
+                var sAmPm by remember { mutableStateOf("AM") }
+                val selectedDays = remember { mutableStateListOf<Int>() }
+                var alarmLabel by remember { mutableStateOf("") }
+                var snoozeVal by remember { mutableStateOf(5) }
+                var selectedSound by remember { mutableStateOf("Digital Beep") }
+                var vibrationEnabled by remember { mutableStateOf(true) }
+
+                // Synchronize bindings when entering edit/create subview
+                LaunchedEffect(editingAlarm, alarmSubView) {
+                    if (alarmSubView == "edit" && editingAlarm != null) {
+                        val alarm = editingAlarm!!
+                        sHour = if (alarm.hour % 12 == 0) 12 else alarm.hour % 12
+                        sMinute = alarm.minute
+                        sAmPm = if (alarm.hour >= 12) "PM" else "AM"
+                        alarmLabel = alarm.label
+                        snoozeVal = alarm.snoozeDuration
+                        selectedSound = alarm.soundUri
+                        vibrationEnabled = alarm.vibrationEnabled
+                        selectedDays.clear()
+                        val parts = alarm.repeatDaysString.split(",").filter { it.isNotBlank() }.mapNotNull { it.toIntOrNull() }
+                        selectedDays.addAll(parts)
+                    } else if (alarmSubView == "add") {
+                        sHour = 7
+                        sMinute = 30
+                        sAmPm = "AM"
+                        alarmLabel = ""
+                        snoozeVal = 5
+                        selectedSound = "Digital Beep"
+                        vibrationEnabled = true
+                        selectedDays.clear()
+                    }
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .testTag("medication_alarm_dialog"),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(20.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Title Bar
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = if (alarmSubView == "list") "ALARM CENTER" else if (alarmSubView == "add") "ADD NEW ALARM" else "EDIT ALARM",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Black,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        letterSpacing = 0.5.sp
+                                    )
+                                )
+                            }
+                            IconButton(onClick = { showMedicationTimerDialog = false }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = Translator.translate("close", currentLanguage)
+                                )
+                            }
+                        }
+
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                        if (alarmSubView == "list") {
+                            // --- Screen A: Alarm List Dashboard ---
+                            ClockWidget(modifier = Modifier.padding(vertical = 4.dp))
+
+                            var digitalTimeText by remember { mutableStateOf("") }
+                            LaunchedEffect(Unit) {
+                                while (true) {
+                                    digitalTimeText = SimpleDateFormat("hh:mm:ss a - EEE, MMM d", Locale.getDefault()).format(Date())
+                                    delay(500)
+                                }
+                            }
+                            Text(
+                                text = digitalTimeText,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 13.sp,
+                                modifier = Modifier.padding(bottom = 6.dp)
+                            )
+
+                            // Scrollable list of registered alarms
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f, fill = false)
+                                    .heightIn(max = 260.dp)
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (persistentAlarms.isEmpty()) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 24.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "No Medication Alarms Configured.",
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                color = MaterialTheme.colorScheme.outline,
+                                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                            )
+                                        )
+                                    }
+                                } else {
+                                    persistentAlarms.forEach { alarm ->
+                                        val displayHr = if (alarm.hour % 12 == 0) 12 else alarm.hour % 12
+                                        val displayMin = "%02d".format(alarm.minute)
+                                        val amPm = if (alarm.hour >= 12) "PM" else "AM"
+                                        val largeTime = "$displayHr:$displayMin $amPm"
+
+                                        // Format repeat days
+                                        val daysSubtitle = if (alarm.repeatDaysString.isBlank()) {
+                                            "One-time Alarm"
+                                        } else {
+                                            val partDays = alarm.repeatDaysString.split(",")
+                                                .filter { it.isNotBlank() }
+                                                .mapNotNull { it.toIntOrNull() }
+                                                .sorted()
+                                            if (partDays.size == 7) {
+                                                "Every day"
+                                            } else {
+                                                val daysMap = mapOf(1 to "Mon", 2 to "Tue", 3 to "Wed", 4 to "Thu", 5 to "Fri", 6 to "Sat", 7 to "Sun")
+                                                partDays.joinToString(", ") { daysMap[it] ?: "" }
+                                            }
+                                        }
+
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .border(
+                                                    if (alarm.isSnoozed) 1.5.dp else 0.dp,
+                                                    if (alarm.isSnoozed) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                                    RoundedCornerShape(14.dp)
+                                                )
+                                                .clickable {
+                                                    editingAlarm = alarm
+                                                    alarmSubView = "edit"
+                                                },
+                                            shape = RoundedCornerShape(14.dp),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                            )
+                                        ) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(12.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                                        Text(
+                                                            text = largeTime,
+                                                            fontSize = 22.sp,
+                                                            fontWeight = FontWeight.Black,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                        if (alarm.isSnoozed) {
+                                                            SuggestionChip(
+                                                                onClick = {},
+                                                                label = { Text("Snoozed", fontSize = 9.sp, fontWeight = FontWeight.Bold) }
+                                                            )
+                                                        }
+                                                    }
+                                                    Text(
+                                                        text = if (alarm.label.isNotBlank()) alarm.label else "Alarm Reminder",
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = MaterialTheme.colorScheme.primary
+                                                    )
+                                                    Text(
+                                                        text = "🗓️ $daysSubtitle",
+                                                        fontSize = 10.sp,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                                    )
+                                                }
+
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                                ) {
+                                                    Switch(
+                                                        checked = alarm.isEnabled,
+                                                        onCheckedChange = { viewModel.toggleAlarmEnabled(alarm) },
+                                                        modifier = Modifier.scale(0.85f).testTag("alarm_switch_${alarm.id}")
+                                                    )
+                                                    IconButton(
+                                                        onClick = { viewModel.deleteAlarm(alarm) },
+                                                        modifier = Modifier.size(36.dp).testTag("delete_alarm_${alarm.id}")
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Delete,
+                                                            contentDescription = "Delete alarm",
+                                                            tint = MaterialTheme.colorScheme.error,
+                                                            modifier = Modifier.size(18.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            // Large center FAB button to trigger creation (Screen B)
+                            Button(
+                                onClick = {
+                                    editingAlarm = null
+                                    alarmSubView = "add"
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .testTag("add_alarm_fab_btn"),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = "Add Alarm", modifier = Modifier.size(18.dp))
+                                    Text("CREATE NEW ALARM", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                }
+                            }
+
+                        } else {
+                            // --- Screen B: Add/Edit Alarm Sheet ---
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                // Dynamic custom clock configuration rollers
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        IconButton(onClick = { sHour = if (sHour == 12) 1 else sHour + 1 }) {
+                                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Inc Hrs")
+                                        }
+                                        Text(text = "%02d".format(sHour), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+                                        IconButton(onClick = { sHour = if (sHour == 1) 12 else sHour - 1 }) {
+                                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Dec Hrs")
+                                        }
+                                    }
+                                    Text(":", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        IconButton(onClick = { sMinute = (sMinute + 5) % 60 }) {
+                                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Inc Mins")
+                                        }
+                                        Text(text = "%02d".format(sMinute), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+                                        IconButton(onClick = { sMinute = (sMinute + 55) % 60 }) {
+                                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Dec Mins")
+                                        }
+                                    }
+                                    Button(
+                                        onClick = { sAmPm = if (sAmPm == "AM") "PM" else "AM" },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        ),
+                                        modifier = Modifier.padding(start = 12.dp)
+                                    ) {
+                                        Text(sAmPm, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    }
+                                }
+
+                                Divider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                                // Day of week selector
+                                Text("Select Repeat Days:", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                                val dayLabels = listOf("M", "T", "W", "T", "F", "S", "S")
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    dayLabels.forEachIndexed { idx, name ->
+                                        val dayNum = idx + 1
+                                        val isSel = selectedDays.contains(dayNum)
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape)
+                                                .background(
+                                                    if (isSel) MaterialTheme.colorScheme.primary
+                                                    else MaterialTheme.colorScheme.surfaceVariant
+                                                )
+                                                .clickable {
+                                                    if (isSel) selectedDays.remove(dayNum)
+                                                    else selectedDays.add(dayNum)
+                                                }
+                                                .testTag("day_selector_$dayNum"),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                name,
+                                                fontWeight = FontWeight.Bold,
+                                                color = if (isSel) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
+                                }
+
+                                OutlinedTextField(
+                                    value = alarmLabel,
+                                    onValueChange = { alarmLabel = it },
+                                    label = { Text("Alarm Label (e.g. Paracetamol, vitamins...)") },
+                                    modifier = Modifier.fillMaxWidth().testTag("alarm_label_input")
+                                )
+
+                                // Snooze Config chips
+                                Text("Snooze Mins Interval:", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    listOf(1, 5, 10, 15, 30).forEach { mins ->
+                                        FilterChip(
+                                            selected = snoozeVal == mins,
+                                            onClick = { snoozeVal = mins },
+                                            label = { Text("${mins}m") },
+                                            modifier = Modifier.testTag("snooze_chip_$mins")
+                                        )
+                                    }
+                                }
+
+                                // Sound Tone selection
+                                Text("Ring Sound Tone:", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    listOf("Chirp Tune", "Digital Beep", "Zen Chimes").forEach { sound ->
+                                        FilterChip(
+                                            selected = selectedSound == sound,
+                                            onClick = { selectedSound = sound },
+                                            label = { Text(sound) },
+                                            modifier = Modifier.testTag("sound_chip_$sound")
+                                        )
+                                    }
+                                }
+
+                                // Vibration Feedback Switch
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Pulse Vibration Feedback", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                    Switch(
+                                        checked = vibrationEnabled,
+                                        onCheckedChange = { vibrationEnabled = it },
+                                        modifier = Modifier.scale(0.85f).testTag("vibration_toggle")
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                // Save/Cancel controllers
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    OutlinedButton(
+                                        onClick = { alarmSubView = "list" },
+                                        modifier = Modifier.weight(1f).testTag("cancel_alarm_btn")
+                                    ) {
+                                        Text("Cancel", fontWeight = FontWeight.Bold)
+                                    }
+                                    Button(
+                                        onClick = {
+                                            var targetHr = sHour % 12
+                                            if (sAmPm == "PM") targetHr += 12
+                                            if (sAmPm == "AM" && sHour == 12) targetHr = 0
+
+                                            val finalLabel = alarmLabel.ifBlank { "Medical Reminder" }
+                                            if (editingAlarm == null) {
+                                                viewModel.insertAlarm(
+                                                    hour = targetHr,
+                                                    minute = sMinute,
+                                                    label = finalLabel,
+                                                    repeatDays = selectedDays.toList(),
+                                                    soundUri = selectedSound,
+                                                    snoozeDuration = snoozeVal,
+                                                    vibrationEnabled = vibrationEnabled
+                                                )
+                                            } else {
+                                                val updated = editingAlarm!!.copy(
+                                                    hour = targetHr,
+                                                    minute = sMinute,
+                                                    label = finalLabel,
+                                                    repeatDaysString = selectedDays.joinToString(","),
+                                                    soundUri = selectedSound,
+                                                    snoozeDuration = snoozeVal,
+                                                    vibrationEnabled = vibrationEnabled,
+                                                    isEnabled = true,
+                                                    isSnoozed = false
+                                                )
+                                                viewModel.updateAlarm(updated)
+                                            }
+                                            alarmSubView = "list"
+                                        },
+                                        modifier = Modifier.weight(1.3f).testTag("save_alarm_btn")
+                                    ) {
+                                        Text(if (editingAlarm == null) "SAVE ALARM" else "UPDATE ALARM", fontWeight = FontWeight.Bold)
+                                    }
+                                }
                             }
                         }
                     }

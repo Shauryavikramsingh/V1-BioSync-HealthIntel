@@ -39,4 +39,20 @@ interface HealthDao {
 
     @Query("DELETE FROM lab_reports WHERE id = :id")
     suspend fun deleteReportById(id: Int)
+
+    // --- Alarms ---
+    @Query("SELECT * FROM alarms")
+    fun getAllAlarms(): Flow<List<com.example.data.model.Alarm>>
+
+    @Query("SELECT * FROM alarms WHERE id = :id LIMIT 1")
+    suspend fun getAlarmById(id: String): com.example.data.model.Alarm?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAlarm(alarm: com.example.data.model.Alarm)
+
+    @Delete
+    suspend fun deleteAlarm(alarm: com.example.data.model.Alarm)
+
+    @Query("DELETE FROM alarms WHERE id = :id")
+    suspend fun deleteAlarmById(id: String)
 }

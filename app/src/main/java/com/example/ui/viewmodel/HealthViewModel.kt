@@ -3,6 +3,12 @@ package com.example.ui.viewmodel
 import android.app.Application
 import android.graphics.Bitmap
 import android.util.Log
+import android.media.Ringtone
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.Vibrator
+import android.os.VibrationEffect
+import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.local.HealthDatabase
@@ -57,6 +63,7 @@ class HealthViewModel(application: Application) : AndroidViewModel(application) 
         val database = HealthDatabase.getDatabase(application)
         repository = HealthRepository(database.healthDao())
         hasApiKey = GeminiManager.hasValidApiKey()
+        startTickerIfNeeded()
     }
 
     // --- Data Streams ---
@@ -373,4 +380,336 @@ class HealthViewModel(application: Application) : AndroidViewModel(application) 
             repository.deleteReport(report)
         }
     }
+
+    // --- Dynamic Medication Alarms & Timers State Engine ---
+    private var tickerJob: kotlinx.coroutines.Job? = null
+
+    private val _activeTimers = MutableStateFlow<List<MedicationTimer>>(emptyList())
+    val activeTimers = _activeTimers.asStateFlow()
+
+    private val _ringingTimer = MutableStateFlow<MedicationTimer?>(null)
+    val ringingTimer = _ringingTimer.asStateFlow()
+
+    // --- Advanced Persistent SQLite Alarms Flow & States ---
+    val alarms: StateFlow<List<com.example.data.model.Alarm>> = repository.allAlarms
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
+    private val _ringingAlarm = MutableStateFlow<com.example.data.model.Alarm?>(null)
+    val ringingAlarm = _ringingAlarm.asStateFlow()
+
+    private val triggeredAlarmsForMinute = mutableMapOf<String, Int>() // alarmId -> TriggeredMinute
+
+    fun startTickerIfNeeded() {
+        if (tickerJob != null && tickerJob?.isActive == true) return
+        tickerJob = viewModelScope.launch {
+            while (true) {
+                kotlinx.coroutines.delay(1000)
+                
+                // 1. Check & decrements legacy simulated countdown timers
+                val currentList = _activeTimers.value
+                if (currentList.isNotEmpty()) {
+                    val updatedList = currentList.map { timer ->
+                        if (timer.remainingSeconds > 0) {
+                            val nextSec = timer.remainingSeconds - 1
+                            if (nextSec == 0) {
+                                val ringingTimerCopy = timer.copy(remainingSeconds = 0, isRinging = true)
+                                _ringingTimer.value = ringingTimerCopy
+                                ringingTimerCopy
+                            } else {
+                                timer.copy(remainingSeconds = nextSec)
+                            }
+                        } else {
+                            timer
+                        }
+                    }
+                    _activeTimers.value = updatedList
+                }
+
+                // 2. Checking advanced SQLite/Room-based persistent alarms
+                checkAndTriggerAlarms()
+            }
+        }
+    }
+
+    private var activeRingtone: android.media.Ringtone? = null
+    private var activeVibrator: android.os.Vibrator? = null
+
+    private fun startRingAndVibration(alarm: com.example.data.model.Alarm) {
+        stopRingAndVibration()
+
+        try {
+            val context = getApplication<Application>()
+            val soundUri: Uri = when (alarm.soundUri) {
+                "Chirp Tune" -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                "Zen Chimes" -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+                else -> RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            } ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+
+            val ringtone = RingtoneManager.getRingtone(context, soundUri)
+            if (ringtone != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ringtone.isLooping = true
+                }
+                ringtone.play()
+                activeRingtone = ringtone
+            }
+        } catch (e: Exception) {
+            Log.e("HealthViewModel", "Failed to play ringtone", e)
+        }
+
+        if (alarm.vibrationEnabled) {
+            try {
+                val context = getApplication<Application>()
+                val vibrator = context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? Vibrator
+                if (vibrator != null && vibrator.hasVibrator()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        val pattern = longArrayOf(0, 800, 800)
+                        val effect = VibrationEffect.createWaveform(pattern, 0)
+                        vibrator.vibrate(effect)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator.vibrate(longArrayOf(0, 800, 800), 0)
+                    }
+                    activeVibrator = vibrator
+                }
+            } catch (e: Exception) {
+                Log.e("HealthViewModel", "Failed to vibrate", e)
+            }
+        }
+    }
+
+    private fun stopRingAndVibration() {
+        try {
+            activeRingtone?.let {
+                if (it.isPlaying) {
+                    it.stop()
+                }
+            }
+            activeRingtone = null
+        } catch (e: Exception) {
+            Log.e("HealthViewModel", "Failed to stop ringtone", e)
+        }
+
+        try {
+            activeVibrator?.let {
+                it.cancel()
+            }
+            activeVibrator = null
+        } catch (e: Exception) {
+            Log.e("HealthViewModel", "Failed to cancel vibration", e)
+        }
+    }
+
+    private fun checkAndTriggerAlarms() {
+        val calendar = java.util.Calendar.getInstance()
+        val currentDayOfWeek = when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+            java.util.Calendar.MONDAY -> 1
+            java.util.Calendar.TUESDAY -> 2
+            java.util.Calendar.WEDNESDAY -> 3
+            java.util.Calendar.THURSDAY -> 4
+            java.util.Calendar.FRIDAY -> 5
+            java.util.Calendar.SATURDAY -> 6
+            java.util.Calendar.SUNDAY -> 7
+            else -> 1
+        }
+        val currentHour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
+        val currentMinute = calendar.get(java.util.Calendar.MINUTE)
+        val currentTimeMillis = System.currentTimeMillis()
+
+        alarms.value.forEach { alarm ->
+            if (alarm.isEnabled) {
+                if (alarm.isSnoozed) {
+                    if (currentTimeMillis >= alarm.snoozedUntilMillis) {
+                        // Rescheduled snooze elapsed! Ring again!
+                        viewModelScope.launch {
+                            val updated = alarm.copy(isSnoozed = false, snoozedUntilMillis = 0L)
+                            repository.insertAlarm(updated)
+                        }
+                        triggerRingingAlarm(alarm)
+                    }
+                } else {
+                    // Check standard match
+                    if (alarm.hour == currentHour && alarm.minute == currentMinute) {
+                        val repeats = alarm.repeatDaysString.split(",")
+                            .filter { it.isNotBlank() }
+                            .mapNotNull { it.toIntOrNull() }
+                        
+                        val matchesDay = repeats.isEmpty() || repeats.contains(currentDayOfWeek)
+                        if (matchesDay) {
+                            val lastTriggeredMin = triggeredAlarmsForMinute[alarm.id]
+                            if (lastTriggeredMin != currentMinute) {
+                                triggeredAlarmsForMinute[alarm.id] = currentMinute
+                                triggerRingingAlarm(alarm)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun triggerRingingAlarm(alarm: com.example.data.model.Alarm) {
+        if (_ringingAlarm.value?.id != alarm.id) {
+            _ringingAlarm.value = alarm
+            startRingAndVibration(alarm)
+        }
+    }
+
+    fun insertAlarm(hour: Int, minute: Int, label: String, repeatDays: List<Int>, soundUri: String, snoozeDuration: Int, vibrationEnabled: Boolean) {
+        viewModelScope.launch {
+            val id = java.util.UUID.randomUUID().toString()
+            val repeatDaysString = repeatDays.joinToString(",")
+            val newAlarm = com.example.data.model.Alarm(
+                id = id,
+                hour = hour,
+                minute = minute,
+                label = label,
+                repeatDaysString = repeatDaysString,
+                isEnabled = true,
+                soundUri = soundUri,
+                snoozeDuration = snoozeDuration,
+                vibrationEnabled = vibrationEnabled
+            )
+            repository.insertAlarm(newAlarm)
+            startTickerIfNeeded()
+            _statusMessage.value = "Registered new medication alarm: $label"
+        }
+    }
+
+    fun toggleAlarmEnabled(alarm: com.example.data.model.Alarm) {
+        viewModelScope.launch {
+            val updated = alarm.copy(isEnabled = !alarm.isEnabled, isSnoozed = false)
+            repository.insertAlarm(updated)
+            if (!updated.isEnabled && _ringingAlarm.value?.id == alarm.id) {
+                _ringingAlarm.value = null
+                stopRingAndVibration()
+            }
+            _statusMessage.value = if (updated.isEnabled) "Alarm activated" else "Alarm deactivated"
+        }
+    }
+
+    fun updateAlarm(alarm: com.example.data.model.Alarm) {
+        viewModelScope.launch {
+            repository.insertAlarm(alarm)
+        }
+    }
+
+    fun deleteAlarm(alarm: com.example.data.model.Alarm) {
+        viewModelScope.launch {
+            repository.deleteAlarm(alarm)
+            if (_ringingAlarm.value?.id == alarm.id) {
+                _ringingAlarm.value = null
+                stopRingAndVibration()
+            }
+            _statusMessage.value = "Alarm deleted successfully"
+        }
+    }
+
+    fun snoozeAlarm(alarm: com.example.data.model.Alarm) {
+        viewModelScope.launch {
+            val addMillis = alarm.snoozeDuration * 60 * 1000L
+            val updated = alarm.copy(
+                isSnoozed = true,
+                snoozedUntilMillis = System.currentTimeMillis() + addMillis
+            )
+            repository.insertAlarm(updated)
+            _ringingAlarm.value = null // Dismiss ringing state
+            stopRingAndVibration()
+            _statusMessage.value = "Alarm '${alarm.label}' snoozed for ${alarm.snoozeDuration} minutes"
+        }
+    }
+
+    fun dismissAlarm(alarm: com.example.data.model.Alarm) {
+        viewModelScope.launch {
+            // Check if alarm repeats. If it doesn't repeat (empty string), we disable it.
+            val shouldDisable = alarm.repeatDaysString.isBlank()
+            val updated = alarm.copy(
+                isEnabled = !shouldDisable,
+                isSnoozed = false,
+                snoozedUntilMillis = 0L
+            )
+            repository.insertAlarm(updated)
+            _ringingAlarm.value = null // Dismiss ringing state
+            stopRingAndVibration()
+
+            // Write medication / event compliance log to local Database securely
+            val timeText = "%02d:%02d".format(alarm.hour, alarm.minute)
+            val logText = "💊 ADVANCED ALARM COMPLETED: ${alarm.label}\nScheduled Time: $timeText\nSettings: Sound='${alarm.soundUri}', Vibration=${alarm.vibrationEnabled}\nCompliance Status: Cleared on time!"
+            val log = DailyLog(
+                narrative = logText,
+                symptoms = "Medication Alarm Compliance",
+                analysisResult = "Alarm '${alarm.label}' successfully taken & dismissed. Auto-logged securely.",
+                isVerified = true
+            )
+            repository.insertLog(log)
+            _statusMessage.value = "Logged compliance: '${alarm.label}' was taken successfully!"
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopRingAndVibration()
+    }
+
+    // --- Backward Compatible Simulated Countdowns ---
+    fun addMedicationTimer(name: String, seconds: Int, note: String) {
+        val id = java.util.UUID.randomUUID().toString()
+        val totalSec = if (seconds <= 0) 10 else seconds
+        val formatted = "%02d:%02d".format(totalSec / 60, totalSec % 60)
+        val newTimer = MedicationTimer(
+            id = id,
+            medicationName = name,
+            durationSeconds = totalSec,
+            remainingSeconds = totalSec,
+            note = note,
+            totalDurationFormatted = formatted
+        )
+        _activeTimers.value = _activeTimers.value + newTimer
+        startTickerIfNeeded()
+    }
+
+    fun deleteMedicationTimer(id: String) {
+        _activeTimers.value = _activeTimers.value.filter { it.id != id }
+    }
+
+    fun clearTimerHistory() {
+        _activeTimers.value = emptyList()
+    }
+
+    fun dismissRingingAlarm() {
+        _ringingTimer.value = null
+    }
+
+    fun acknowledgeAndLogMedication(timer: MedicationTimer) {
+        viewModelScope.launch {
+            _ringingTimer.value = null
+            _activeTimers.value = _activeTimers.value.filter { it.id != timer.id }
+            
+            val logText = "💊 MEDICATION TAKEN CHECK: ${timer.medicationName}\nInstructions/Notes: ${timer.note.ifBlank { "Taken on schedule" }}"
+            val log = DailyLog(
+                narrative = logText,
+                symptoms = "Medication Intake",
+                analysisResult = "Active physical compliance logged. Medication registered on schedule.",
+                isVerified = true
+            )
+            repository.insertLog(log)
+            _statusMessage.value = "Registered medication compliance log: ${timer.medicationName}!"
+        }
+    }
 }
+
+// Representing dynamic medication countdown alarms (Legacy / Backwards Compatible)
+data class MedicationTimer(
+    val id: String,
+    val medicationName: String,
+    val durationSeconds: Int,
+    val remainingSeconds: Int,
+    val note: String,
+    val isRinging: Boolean = false,
+    val totalDurationFormatted: String = ""
+)
+
